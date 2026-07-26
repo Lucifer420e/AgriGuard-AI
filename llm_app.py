@@ -1,23 +1,22 @@
+import os
+from dotenv import load_dotenv
+
+# .env file se API Key load karega
+load_dotenv()
+
 def llm_app(topic):
+    from langchain_core.prompts import PromptTemplate
+    from langchain_groq import ChatGroq
 
- from langchain_core.prompts import PromptTemplate
- from langchain_groq import ChatGroq
- # 1. Initialize your LLM
- groq_api = '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'
- llm = ChatGroq(model='openai/gpt-oss-120b', api_key=groq_api, temperature=0.1)
-
- prompt=PromptTemplate(
-    input_variables=['topic'],
+    # 1. Initialize your LLM using .env variable
+    groq_api = os.getenv("GROQ_API_KEY")
     
-    template='You are an agricultue expert.\
-    provide five important lines coverng about {topic}.'
- )
+    llm = ChatGroq(model='openai/gpt-oss-120b', api_key=groq_api, temperature=0.1)
 
- chain=prompt | llm
+    prompt = PromptTemplate(
+        input_variables=['topic'],
+        template='You are an agriculture expert.\nprovide five important lines covering about {topic}.'
+    )
 
- #topic=input('Enter a topic')
- 
- output=chain.invoke(topic)
- #print('Generated Blog Title ', output.content)
- return output.content
-
+    chain = prompt | llm
+    return chain.invoke(topic)
