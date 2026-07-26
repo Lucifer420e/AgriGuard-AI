@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgriGuard AI</title>
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <video autoplay muted loop id="bg-video">
+    <source src="agri-bg.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <div class="top-bar">
+    <button class="lang-btn">Translate: ENG ⇄ HINDI</button>
+  </div>
+  
+  <div class="main-title">
+    🍀 AgriGuard AI 🍀
+  </div>
+
+  <div class="dashboard-grid">
+    
+    <div class="card">
+      <h2>1. Crop Leaf Input</h2>
+      <div class="radio-group">
+        <label><input type="radio" name="input_type" checked> Upload Image File</label>
+        <label><input type="radio" name="input_type"> Use Live Web Cam</label>
+      </div>
+
+      <div class="upload-box">
+        <button class="btn-upload" onclick="document.getElementById('file-input').click()">📤 Upload</button>
+        <input type="file" id="file-input" style="display:none;" accept="image/*" />
+        <span class="upload-info">200MB per file • JPG, PNG</span>
+      </div>
+
+      <p class="instruction-text">Please select a leaf photo or use web cam to view preview here.</p>
+    </div>
+
+    <div class="card">
+      <h2>2. Detection Result</h2>
+      <p class="status-text">
+        🌐 <b>Awaiting Scan...</b> Upload or capture a crop leaf image on the Left Panel to view status here.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>3. AI Expert Advice</h2>
+      <p class="status-text">
+        📋 <b>Awaiting Advisory...</b> Plant disease management and remedies will be generated here once scan is complete.
+      </p>
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+input[type="text"]:focus {
+    border-color: #00f0ff !important;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.4) !important;
+}
+
+iframe[title="streamlit_mic_recorder.speech_to_text"] {
+    height: 52px !important;
+    width: 100% !important;
+}
+
+button[kind="secondary"] {
+    height: 52px !important;
+    width: 100% !important;
+    border-radius: 14px !important;
+    background: linear-gradient(135deg, rgba(0,240,255,0.8), rgba(0,136,204,0.8)) !important;
+    color: #040c14 !important;
+    font-size: 1.4rem !important;
+    font-weight: bold !important;
+}
