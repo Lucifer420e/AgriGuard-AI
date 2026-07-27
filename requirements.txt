@@ -5,3 +5,4 @@ gTTS
 pillow
 requests
 tflite-runtime
+streamlit-mic-recorder
