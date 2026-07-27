@@ -4,5 +4,5 @@ python-dotenv
 gTTS
 pillow
 requests
-tflite-runtime
+tensorflow-cpu
 streamlit-mic-recorder
