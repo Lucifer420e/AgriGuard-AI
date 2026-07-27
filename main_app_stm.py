@@ -347,14 +347,15 @@ with st.sidebar:
 # ---------------------------------------------------------
 # 5. TFLITE MODEL LOADER
 # ---------------------------------------------------------
+
 @st.cache_resource
 def load_tflite_model():
-    # Pehle direct current folder mein dhoondhega
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     possible_paths = [
-        "model.tflite",
+        os.path.join(base_dir, "model_unquant.tflite"),
+        os.path.join(base_dir, "model.tflite"),
         "model_unquant.tflite",
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "model.tflite"),
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "model_unquant.tflite")
+        "model.tflite"
     ]
     
     model_path = None
@@ -379,42 +380,54 @@ def load_tflite_model():
     except Exception:
         return None
 
+
 def load_labels():
     base_dir = os.path.dirname(os.path.abspath(__file__))
     labels_path = os.path.join(base_dir, "labels.txt")
     if os.path.exists(labels_path):
         with open(labels_path, "r", encoding="utf-8") as f:
-            return [line.strip() for line in f.readlines()]
+            labels = []
+            for line in f.readlines():
+                clean_line = line.strip()
+                if clean_line and clean_line[0].isdigit():
+                    parts = clean_line.split(" ", 1)
+                    if len(parts) > 1:
+                        clean_line = parts[1]
+                labels.append(clean_line)
+            return labels
     return []
 
 interpreter = load_tflite_model()
 labels = load_labels()
 
+
 def predict_disease(image):
-    if not interpreter:
-        return "Model File Missing", 0.0
+  if not interpreter:
+    return "Model File Missing", 0.0
 
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
+  input_details = interpreter.get_input_details()
+  output_details = interpreter.get_output_details()
 
-    img = image.convert("RGB").resize((224, 224))
-    img_array = np.array(img, dtype=np.float32)
-    img_array = (img_array / 127.5) - 1.0
-    img_array = np.expand_dims(img_array, axis=0)
+  img = image.convert("RGB").resize((224, 224))
+  img_array = np.array(img, dtype=np.float32)
+  img_array = (img_array / 127.5) - 1.0
+  img_array = np.expand_dims(img_array, axis=0)
 
-    interpreter.set_tensor(input_details[0]["index"], img_array)
-    interpreter.invoke()
+  interpreter.set_tensor(input_details[0]["index"], img_array)
+  interpreter.invoke()
 
-    output_data = interpreter.get_tensor(output_details[0]["index"])
-    predicted_index = np.argmax(output_data[0])
-    confidence = float(output_data[0][predicted_index])
+  output_data = interpreter.get_tensor(output_details[0]["index"])[0]
+  top_index = np.argmax(output_data)
+  confidence = float(output_data[top_index]) * 100
 
-    if labels and predicted_index < len(labels):
-        label_name = labels[predicted_index]
-    else:
-        label_name = f"Class {predicted_index}"
+  label_text = (
+      labels[top_index] if top_index < len(labels) else f"Class {top_index}"
+  )
+  if " " in label_text:
+    label_text = label_text.split(" ", 1)[1]
 
-    return label_name, confidence
+  return label_text, confidence
+
 
 # ---------------------------------------------------------
 # 6. EXPERT AI & HINDI AUDIO ENGINE
@@ -615,25 +628,24 @@ with c_mic:
 st.markdown("</div>", unsafe_allow_html=True)
 
 if spoken_text:
-    st.session_state.user_query = spoken_text
+  st.session_state.user_query = spoken_text
 
 active_query = query_input or spoken_text
 
 if active_query:
-    with st.spinner("AgriGuard AI is generating answer..."):
-        html_answer, speech_text_res = get_ai_answer(active_query)
+  with st.spinner("AgriGuard AI is generating answer..."):
+    html_answer, speech_text_res = get_ai_answer(active_query)
 
-    st.markdown(
-        f"""
+  st.markdown(
+      f"""
         <div class='ai-response-box'>
-            <h4 style='color:#00f0ff !important; margin-top:0; font-size:1.3rem; text-shadow:0 0 6px rgba(0,240,255,0.4);'>🤖 AgriGuard AI Answer:</h4>
+            <h4 style='color:#00f0ff !important; margin-top:0; font-size:1.3rem; text-shadow:0 0 6px rgba(0,240,255,0.4);'>🤖 AgriGuard AI Answer for: "{active_query}"</h4>
             {html_answer}
         </div>
         """,
-        unsafe_allow_html=True
-    )
+      unsafe_allow_html=True,
+  )
 
-    # Audio conversion ko active_query ke andar hi rakhein!
-    audio_bytes = text_to_speech_audio(speech_text_res)
-    if audio_bytes:
-        st.audio(audio_bytes, format="audio/mp3", autoplay=True)
+  audio_bytes = text_to_speech_audio(speech_text_res)
+  if audio_bytes:
+    st.audio(audio_bytes, format="audio/mp3", autoplay=True)
