@@ -4,4 +4,4 @@ python-dotenv
 gTTS
 pillow
 requests
-tensorflow-cpu
+tflite-runtime
