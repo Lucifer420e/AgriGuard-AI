@@ -347,16 +347,23 @@ with st.sidebar:
 # ---------------------------------------------------------
 # 5. TFLITE MODEL LOADER
 # ---------------------------------------------------------
-
 @st.cache_resource
 def load_tflite_model():
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(base_dir, "model_unquant.tflite")
+    # Pehle direct current folder mein dhoondhega
+    possible_paths = [
+        "model.tflite",
+        "model_unquant.tflite",
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "model.tflite"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "model_unquant.tflite")
+    ]
     
-    if not os.path.exists(model_path):
-        model_path = os.path.join(base_dir, "model.tflite")
-        
-    if not os.path.exists(model_path):
+    model_path = None
+    for p in possible_paths:
+        if os.path.exists(p):
+            model_path = p
+            break
+            
+    if not model_path:
         return None
         
     try:
